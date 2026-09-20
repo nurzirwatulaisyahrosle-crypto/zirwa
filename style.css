@@ -1,0 +1,2312 @@
+/* =========================================================
+   KEMBARA PETARA
+   style.css
+   Reka bentuk utama permainan
+========================================================= */
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    font-family:
+        "Trebuchet MS",
+        "Arial Rounded MT Bold",
+        Arial,
+        sans-serif;
+
+    overflow: hidden;
+    background: #8ed6ff;
+    color: #263238;
+}
+
+
+/* =========================================================
+   SCREEN SYSTEM
+========================================================= */
+
+.screen {
+    position: fixed;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: none;
+}
+
+.screen.active {
+    display: flex;
+}
+
+
+/* =========================================================
+   START SCREEN
+========================================================= */
+
+#startScreen {
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #80d8ff 0%,
+            #b3e5fc 55%,
+            #81c784 55%,
+            #66bb6a 100%
+        );
+
+    overflow: auto;
+}
+
+
+/* awan latar */
+
+#startScreen::before,
+#startScreen::after {
+    content: "";
+
+    position: absolute;
+
+    width: 180px;
+    height: 65px;
+
+    border-radius: 60px;
+
+    background: rgba(255, 255, 255, 0.8);
+
+    box-shadow:
+        55px 8px 0 rgba(255, 255, 255, 0.8),
+        100px 18px 0 rgba(255, 255, 255, 0.8);
+}
+
+#startScreen::before {
+    top: 12%;
+    left: 5%;
+}
+
+#startScreen::after {
+    top: 22%;
+    right: 8%;
+    transform: scale(0.75);
+}
+
+
+/* =========================================================
+   START CARD
+========================================================= */
+
+.start-card {
+    position: relative;
+    z-index: 5;
+
+    width: min(520px, 92vw);
+
+    padding: 42px 38px;
+
+    text-align: center;
+
+    background: rgba(255, 255, 255, 0.96);
+
+    border: 6px solid #263238;
+
+    border-radius: 28px;
+
+    box-shadow:
+        0 10px 0 #263238,
+        0 20px 30px rgba(0, 0, 0, 0.22);
+
+    animation: cardAppear 0.7s ease;
+}
+
+@keyframes cardAppear {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.94);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+.logo-icon {
+    font-size: 62px;
+
+    margin-bottom: 8px;
+
+    animation: compassFloat 2s ease-in-out infinite;
+}
+
+@keyframes compassFloat {
+    0%,
+    100% {
+        transform: translateY(0) rotate(-5deg);
+    }
+
+    50% {
+        transform: translateY(-8px) rotate(5deg);
+    }
+}
+
+
+.start-card h1 {
+    font-size: clamp(38px, 8vw, 62px);
+
+    line-height: 1;
+
+    color: #1565c0;
+
+    text-shadow:
+        3px 3px 0 #90caf9,
+        5px 5px 0 #263238;
+
+    margin-bottom: 14px;
+}
+
+.tagline {
+    font-size: clamp(16px, 3vw, 21px);
+
+    font-weight: bold;
+
+    color: #455a64;
+
+    margin-bottom: 32px;
+}
+
+
+/* =========================================================
+   NAME INPUT
+========================================================= */
+
+.name-area {
+    text-align: left;
+
+    margin-bottom: 22px;
+}
+
+.name-area label {
+    display: block;
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    margin-bottom: 8px;
+}
+
+.name-area input {
+    width: 100%;
+
+    padding: 15px 17px;
+
+    border: 4px solid #37474f;
+
+    border-radius: 14px;
+
+    font-family: inherit;
+
+    font-size: 18px;
+
+    outline: none;
+
+    background: #f5f5f5;
+
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+.name-area input:focus {
+    border-color: #1976d2;
+
+    box-shadow:
+        0 0 0 4px rgba(25, 118, 210, 0.18);
+}
+
+.name-area input::placeholder {
+    color: #90a4ae;
+}
+
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.main-button {
+    width: 100%;
+
+    border: 4px solid #263238;
+    border-radius: 16px;
+
+    padding: 15px 22px;
+
+    background: #43a047;
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 19px;
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 6px 0 #1b5e20;
+
+    transition:
+        transform 0.12s,
+        box-shadow 0.12s,
+        filter 0.12s;
+}
+
+.main-button:hover {
+    filter: brightness(1.08);
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 0 #1b5e20;
+}
+
+.main-button:active {
+    transform: translateY(4px);
+
+    box-shadow:
+        0 2px 0 #1b5e20;
+}
+
+.main-button:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow:
+        0 4px 0 #455a64;
+}
+
+.error-message {
+    min-height: 24px;
+
+    margin-top: 12px;
+
+    color: #d32f2f;
+
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   GAME WORLD
+========================================================= */
+
+#worldScreen {
+    flex-direction: column;
+
+    background: #81d4fa;
+}
+
+
+/* =========================================================
+   HUD
+========================================================= */
+
+.game-hud {
+    position: absolute;
+
+    z-index: 100;
+
+    top: 12px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    width: min(850px, calc(100% - 24px));
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    pointer-events: none;
+}
+
+.hud-item {
+    min-width: 130px;
+
+    padding: 10px 16px;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    border: 4px solid #263238;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 5px 0 #263238;
+
+    font-size: 16px;
+
+    font-weight: 900;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   GAME WORLD
+========================================================= */
+
+.game-world {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    background: #81d4fa;
+}
+
+
+/* =========================================================
+   SKY
+========================================================= */
+
+.sky {
+    position: absolute;
+
+    inset: 0 0 45% 0;
+
+    background:
+        linear-gradient(
+            #4fc3f7,
+            #b3e5fc
+        );
+
+    overflow: hidden;
+}
+
+.sun {
+    position: absolute;
+
+    top: 12%;
+    right: 12%;
+
+    font-size: clamp(50px, 8vw, 90px);
+
+    filter:
+        drop-shadow(0 5px 3px rgba(0, 0, 0, 0.12));
+}
+
+
+/* =========================================================
+   CLOUDS
+========================================================= */
+
+.cloud {
+    position: absolute;
+
+    width: 120px;
+    height: 42px;
+
+    border-radius: 50px;
+
+    background: rgba(255, 255, 255, 0.9);
+
+    box-shadow:
+        35px -15px 0 rgba(255, 255, 255, 0.9),
+        70px 2px 0 rgba(255, 255, 255, 0.9);
+
+    animation: cloudMove 25s linear infinite;
+}
+
+.cloud-1 {
+    top: 17%;
+    left: -180px;
+}
+
+.cloud-2 {
+    top: 34%;
+    left: 20%;
+
+    transform: scale(0.65);
+
+    animation-duration: 32s;
+}
+
+.cloud-3 {
+    top: 10%;
+    left: 62%;
+
+    transform: scale(0.5);
+
+    animation-duration: 38s;
+}
+
+@keyframes cloudMove {
+    from {
+        transform: translateX(-220px);
+    }
+
+    to {
+        transform: translateX(calc(100vw + 300px));
+    }
+}
+
+
+/* =========================================================
+   MOUNTAINS
+========================================================= */
+
+.mountains {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 38%;
+
+    height: 35%;
+
+    z-index: 2;
+}
+
+.mountain {
+    position: absolute;
+
+    bottom: 0;
+
+    width: 0;
+    height: 0;
+
+    border-left: 150px solid transparent;
+    border-right: 150px solid transparent;
+    border-bottom: 240px solid #689f38;
+
+    opacity: 0.9;
+}
+
+.mountain::after {
+    content: "";
+
+    position: absolute;
+
+    left: -50px;
+    top: 52px;
+
+    width: 100px;
+    height: 60px;
+
+    background: #f5f5f5;
+
+    clip-path: polygon(
+        50% 0,
+        100% 100%,
+        0 100%
+    );
+}
+
+.mountain-1 {
+    left: -40px;
+    transform: scale(0.8);
+}
+
+.mountain-2 {
+    left: 25%;
+
+    transform: scale(1.15);
+
+    border-bottom-color: #558b2f;
+}
+
+.mountain-3 {
+    right: -60px;
+
+    transform: scale(0.9);
+
+    border-bottom-color: #7cb342;
+}
+
+
+/* =========================================================
+   WORLD MAP
+========================================================= */
+
+.world-map {
+    position: absolute;
+
+    z-index: 10;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 58%;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #66bb6a 0%,
+            #43a047 100%
+        );
+
+    border-top: 8px solid #33691e;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   PATH
+========================================================= */
+
+.path {
+    position: absolute;
+
+    height: 55px;
+
+    background: #d7b98e;
+
+    border-top: 7px solid #a1885f;
+    border-bottom: 7px solid #a1885f;
+
+    border-radius: 30px;
+
+    transform-origin: left center;
+
+    box-shadow:
+        inset 0 8px rgba(255, 255, 255, 0.15),
+        inset 0 -8px rgba(0, 0, 0, 0.08);
+}
+
+.path-1 {
+    width: 27%;
+
+    left: 5%;
+    top: 49%;
+
+    transform: rotate(-15deg);
+}
+
+.path-2 {
+    width: 25%;
+
+    left: 27%;
+    top: 40%;
+
+    transform: rotate(28deg);
+}
+
+.path-3 {
+    width: 28%;
+
+    left: 46%;
+    top: 51%;
+
+    transform: rotate(-25deg);
+}
+
+.path-4 {
+    width: 28%;
+
+    left: 66%;
+    top: 40%;
+
+    transform: rotate(28deg);
+}
+
+
+/* =========================================================
+   RIVER
+========================================================= */
+
+.river {
+    position: absolute;
+
+    z-index: 1;
+
+    right: -5%;
+    bottom: -10%;
+
+    width: 30%;
+
+    height: 75%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #29b6f6,
+            #81d4fa,
+            #29b6f6
+        );
+
+    transform:
+        rotate(8deg);
+
+    border-left: 8px solid #0277bd;
+    border-right: 8px solid #0277bd;
+
+    opacity: 0.95;
+}
+
+.wave {
+    position: absolute;
+
+    width: 70px;
+    height: 12px;
+
+    border-top: 4px solid rgba(255,255,255,0.7);
+
+    border-radius: 50%;
+
+    animation: waveMove 2s ease-in-out infinite;
+}
+
+.wave-1 {
+    top: 20%;
+    left: 20%;
+}
+
+.wave-2 {
+    top: 48%;
+    left: 50%;
+
+    animation-delay: 0.5s;
+}
+
+.wave-3 {
+    top: 75%;
+    left: 30%;
+
+    animation-delay: 1s;
+}
+
+@keyframes waveMove {
+    0%,
+    100% {
+        transform: translateX(-10px);
+    }
+
+    50% {
+        transform: translateX(15px);
+    }
+}
+
+
+/* =========================================================
+   TREES
+========================================================= */
+
+.tree,
+.rock {
+    position: absolute;
+
+    z-index: 8;
+
+    font-size: 45px;
+
+    user-select: none;
+
+    filter:
+        drop-shadow(0 5px 2px rgba(0, 0, 0, 0.18));
+}
+
+.tree-1 {
+    left: 3%;
+    top: 8%;
+}
+
+.tree-2 {
+    left: 19%;
+    top: 68%;
+}
+
+.tree-3 {
+    left: 38%;
+    top: 5%;
+}
+
+.tree-4 {
+    left: 55%;
+    top: 74%;
+}
+
+.tree-5 {
+    left: 74%;
+    top: 8%;
+}
+
+.tree-6 {
+    right: 2%;
+    top: 70%;
+}
+
+.rock-1 {
+    left: 25%;
+    top: 17%;
+}
+
+.rock-2 {
+    left: 62%;
+    top: 15%;
+}
+
+
+/* =========================================================
+   PLAYER
+========================================================= */
+
+.player {
+    position: absolute;
+
+    z-index: 50;
+
+    left: 5%;
+    top: 53%;
+
+    width: 62px;
+    height: 62px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 42px;
+
+    background: #fff;
+
+    border: 4px solid #263238;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 7px 0 #263238;
+
+    user-select: none;
+
+    transition:
+        left 0.08s linear,
+        top 0.08s linear;
+
+    cursor: default;
+
+    animation: playerIdle 1s ease-in-out infinite;
+}
+
+@keyframes playerIdle {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+
+/* =========================================================
+   CHECKPOINT
+========================================================= */
+
+.checkpoint {
+    position: absolute;
+
+    z-index: 30;
+
+    width: 125px;
+
+    min-height: 105px;
+
+    padding: 8px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 2px;
+
+    border: 5px solid #263238;
+
+    border-radius: 18px;
+
+    font-family: inherit;
+
+    background: #fff;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 0 #263238;
+
+    transform: translate(-50%, -50%);
+
+    transition:
+        transform 0.15s,
+        filter 0.15s,
+        opacity 0.15s;
+}
+
+.checkpoint:hover:not(:disabled) {
+    transform:
+        translate(-50%, -50%)
+        scale(1.07);
+
+    filter: brightness(1.08);
+}
+
+.checkpoint:active:not(:disabled) {
+    transform:
+        translate(-50%, -50%)
+        translateY(4px);
+}
+
+.checkpoint-icon {
+    font-size: 34px;
+}
+
+.checkpoint-number {
+    font-size: 14px;
+
+    font-weight: 900;
+
+    color: #1565c0;
+}
+
+.checkpoint-name {
+    font-size: 12px;
+
+    font-weight: 900;
+
+    line-height: 1.1;
+
+    text-align: center;
+}
+
+
+/* checkpoint yang boleh dimainkan */
+
+.checkpoint.unlocked {
+    animation: checkpointPulse 1.7s ease-in-out infinite;
+
+    border-color: #1565c0;
+}
+
+@keyframes checkpointPulse {
+    0%,
+    100% {
+        box-shadow:
+            0 8px 0 #263238,
+            0 0 0 0 rgba(33, 150, 243, 0.4);
+    }
+
+    50% {
+        box-shadow:
+            0 8px 0 #263238,
+            0 0 0 14px rgba(33, 150, 243, 0);
+    }
+}
+
+
+/* checkpoint selesai */
+
+.checkpoint.completed {
+    background: #c8e6c9;
+
+    border-color: #2e7d32;
+
+    filter: saturate(0.8);
+}
+
+.checkpoint.completed::after {
+    content: "✓";
+
+    position: absolute;
+
+    top: -16px;
+    right: -12px;
+
+    width: 35px;
+    height: 35px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border: 4px solid #263238;
+
+    border-radius: 50%;
+
+    background: #43a047;
+
+    color: white;
+
+    font-weight: 900;
+}
+
+
+/* checkpoint terkunci */
+
+.checkpoint.locked {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    filter: grayscale(0.6);
+
+    animation: none;
+}
+
+.checkpoint.locked::before {
+    content: "🔒";
+
+    position: absolute;
+
+    top: -13px;
+    right: -10px;
+
+    font-size: 25px;
+}
+
+
+/* =========================================================
+   CONTROL HINT
+========================================================= */
+
+.controls-hint {
+    position: absolute;
+
+    z-index: 100;
+
+    left: 50%;
+    bottom: 12px;
+
+    transform: translateX(-50%);
+
+    display: flex;
+
+    gap: 10px;
+
+    padding: 8px 15px;
+
+    background: rgba(255,255,255,0.94);
+
+    border: 3px solid #263238;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 4px 0 #263238;
+
+    font-size: 13px;
+
+    font-weight: 900;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   MOBILE CONTROLS
+========================================================= */
+
+.mobile-controls {
+    position: absolute;
+
+    z-index: 150;
+
+    right: 15px;
+    bottom: 15px;
+
+    display: none;
+
+    text-align: center;
+}
+
+.mobile-controls button {
+    width: 50px;
+    height: 50px;
+
+    margin: 2px;
+
+    border: 3px solid #263238;
+
+    border-radius: 12px;
+
+    background: rgba(255,255,255,0.9);
+
+    font-size: 22px;
+
+    font-weight: 900;
+
+    box-shadow:
+        0 4px 0 #263238;
+
+    touch-action: none;
+
+    cursor: pointer;
+}
+
+.mobile-controls button:active {
+    transform: translateY(3px);
+
+    box-shadow:
+        0 1px 0 #263238;
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal {
+    position: fixed;
+
+    z-index: 500;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(20, 40, 50, 0.68);
+
+    backdrop-filter: blur(4px);
+}
+
+.modal.hidden {
+    display: none;
+}
+
+
+/* =========================================================
+   ACTIVITY CARD
+========================================================= */
+
+.activity-card {
+    position: relative;
+
+    width: min(720px, 94vw);
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    padding: 32px;
+
+    background: #fff;
+
+    border: 6px solid #263238;
+
+    border-radius: 25px;
+
+    box-shadow:
+        0 12px 0 #263238,
+        0 20px 35px rgba(0,0,0,0.3);
+
+    animation: modalAppear 0.25s ease;
+}
+
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.85) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+
+.close-button {
+    position: absolute;
+
+    top: 12px;
+    right: 12px;
+
+    width: 42px;
+    height: 42px;
+
+    border: 3px solid #263238;
+
+    border-radius: 50%;
+
+    background: #ef5350;
+
+    color: white;
+
+    font-size: 20px;
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 0 #b71c1c;
+}
+
+.close-button:active {
+    transform: translateY(3px);
+
+    box-shadow:
+        0 1px 0 #b71c1c;
+}
+
+
+/* =========================================================
+   ACTIVITY CONTENT
+========================================================= */
+
+.activity-title {
+    padding-right: 45px;
+
+    margin-bottom: 8px;
+
+    font-size: clamp(26px, 5vw, 38px);
+
+    color: #1565c0;
+}
+
+.activity-skill {
+    display: inline-block;
+
+    margin-bottom: 22px;
+
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    background: #e3f2fd;
+
+    color: #1565c0;
+
+    font-size: 14px;
+
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   AUDIO QUESTION
+========================================================= */
+
+.audio-box {
+    padding: 18px;
+
+    margin-bottom: 20px;
+
+    border: 4px solid #90a4ae;
+
+    border-radius: 16px;
+
+    background: #f5f7f8;
+
+    text-align: center;
+}
+
+.audio-box p {
+    margin-bottom: 12px;
+
+    font-weight: bold;
+
+    color: #455a64;
+}
+
+.audio-button {
+    padding: 12px 20px;
+
+    border: 4px solid #263238;
+
+    border-radius: 14px;
+
+    background: #1976d2;
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 17px;
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 0 #0d47a1;
+}
+
+.audio-button:hover {
+    filter: brightness(1.08);
+}
+
+.audio-button:active {
+    transform: translateY(4px);
+
+    box-shadow:
+        0 1px 0 #0d47a1;
+}
+
+
+/* =========================================================
+   QUESTION
+========================================================= */
+
+.question-text {
+    margin-bottom: 20px;
+
+    font-size: 22px;
+
+    line-height: 1.4;
+
+    font-weight: 900;
+
+    text-align: center;
+}
+
+.question-number {
+    color: #1976d2;
+}
+
+
+/* =========================================================
+   ANSWER OPTIONS
+========================================================= */
+
+.options {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 14px;
+
+    margin-top: 15px;
+}
+
+.option-button {
+    min-height: 125px;
+
+    padding: 12px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    border: 4px solid #263238;
+
+    border-radius: 18px;
+
+    background: #fff;
+
+    font-family: inherit;
+
+    font-size: 17px;
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 6px 0 #263238;
+
+    transition:
+        transform 0.12s,
+        background 0.12s;
+}
+
+.option-button:hover {
+    background: #e3f2fd;
+
+    transform: translateY(-3px);
+}
+
+.option-button:active {
+    transform: translateY(3px);
+
+    box-shadow:
+        0 2px 0 #263238;
+}
+
+.option-emoji {
+    font-size: 42px;
+}
+
+
+/* =========================================================
+   DRAG AND DROP
+========================================================= */
+
+.kitchen-area {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 18px;
+
+    margin-top: 15px;
+}
+
+.objects-panel,
+.target-panel {
+    min-height: 230px;
+
+    padding: 15px;
+
+    border: 4px solid #90a4ae;
+
+    border-radius: 18px;
+
+    background: #f5f5f5;
+}
+
+.panel-title {
+    margin-bottom: 12px;
+
+    font-weight: 900;
+
+    text-align: center;
+
+    color: #455a64;
+}
+
+.draggable-items {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 10px;
+}
+
+.drag-item {
+    min-width: 85px;
+
+    padding: 12px 8px;
+
+    border: 4px solid #263238;
+
+    border-radius: 14px;
+
+    background: white;
+
+    font-family: inherit;
+
+    font-size: 30px;
+
+    cursor: grab;
+
+    user-select: none;
+
+    box-shadow:
+        0 5px 0 #263238;
+}
+
+.drag-item:active {
+    cursor: grabbing;
+}
+
+.drop-zone {
+    min-height: 155px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    padding: 15px;
+
+    border: 4px dashed #78909c;
+
+    border-radius: 15px;
+
+    background: #e8f5e9;
+
+    font-weight: 900;
+}
+
+.drop-zone.drag-over {
+    background: #c8e6c9;
+
+    border-color: #2e7d32;
+}
+
+
+/* =========================================================
+   SPEECH AREA
+========================================================= */
+
+.speech-area {
+    margin-top: 15px;
+
+    padding: 18px;
+
+    border: 4px solid #90a4ae;
+
+    border-radius: 18px;
+
+    background: #f8f9fa;
+
+    text-align: center;
+}
+
+.speech-buttons {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+
+    margin-bottom: 16px;
+}
+
+.mic-button {
+    padding: 13px 20px;
+
+    border: 4px solid #263238;
+
+    border-radius: 14px;
+
+    background: #ef5350;
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 17px;
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 0 #b71c1c;
+}
+
+.mic-button.recording {
+    background: #d32f2f;
+
+    animation: recordingPulse 1s infinite;
+}
+
+@keyframes recordingPulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.speech-display {
+    min-height: 90px;
+
+    padding: 16px;
+
+    border: 4px solid #cfd8dc;
+
+    border-radius: 15px;
+
+    background: white;
+
+    font-size: 20px;
+
+    font-weight: 900;
+
+    line-height: 1.5;
+}
+
+.speech-status {
+    min-height: 24px;
+
+    margin-top: 10px;
+
+    color: #546e7a;
+
+    font-size: 14px;
+
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   WORD BLOCKS
+========================================================= */
+
+.word-blocks {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    margin-top: 16px;
+}
+
+.word-block {
+    padding: 8px 12px;
+
+    border: 3px solid #263238;
+
+    border-radius: 10px;
+
+    background: #fff3e0;
+
+    font-weight: 900;
+
+    animation: blockPop 0.25s ease;
+}
+
+.word-block.matched {
+    background: #c8e6c9;
+
+    border-color: #2e7d32;
+}
+
+@keyframes blockPop {
+    from {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+.progress-wrapper {
+    margin: 15px 0;
+}
+
+.progress-label {
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 5px;
+
+    font-weight: 900;
+}
+
+.progress-bar {
+    height: 18px;
+
+    overflow: hidden;
+
+    border: 3px solid #263238;
+
+    border-radius: 20px;
+
+    background: #eceff1;
+}
+
+.progress-fill {
+    height: 100%;
+
+    width: 0%;
+
+    background: #43a047;
+
+    transition: width 0.3s ease;
+}
+
+
+/* =========================================================
+   ACTIVITY NEXT BUTTON
+========================================================= */
+
+.activity-next {
+    margin-top: 20px;
+}
+
+.activity-next .main-button {
+    background: #1976d2;
+
+    box-shadow:
+        0 6px 0 #0d47a1;
+}
+
+.activity-next .main-button:hover {
+    box-shadow:
+        0 8px 0 #0d47a1;
+}
+
+.activity-next .main-button:active {
+    box-shadow:
+        0 2px 0 #0d47a1;
+}
+
+
+/* =========================================================
+   FEEDBACK MODAL
+========================================================= */
+
+.feedback-card {
+    width: min(470px, 90vw);
+
+    padding: 35px 28px;
+
+    text-align: center;
+
+    background: white;
+
+    border: 6px solid #263238;
+
+    border-radius: 25px;
+
+    box-shadow:
+        0 12px 0 #263238;
+
+    animation: feedbackPop 0.3s ease;
+}
+
+@keyframes feedbackPop {
+    from {
+        opacity: 0;
+        transform: scale(0.7) rotate(-3deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) rotate(0);
+    }
+}
+
+#feedbackIcon {
+    font-size: 65px;
+
+    margin-bottom: 8px;
+}
+
+.feedback-card h2 {
+    font-size: 32px;
+
+    color: #2e7d32;
+
+    margin-bottom: 10px;
+}
+
+.feedback-card p {
+    font-size: 18px;
+
+    font-weight: bold;
+
+    line-height: 1.4;
+
+    margin-bottom: 16px;
+}
+
+#feedbackScore {
+    margin-bottom: 22px;
+
+    font-size: 26px;
+
+    font-weight: 900;
+
+    color: #f9a825;
+}
+
+
+/* =========================================================
+   FINISH SCREEN
+========================================================= */
+
+#finishScreen {
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    overflow: auto;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #4fc3f7,
+            #e1f5fe 52%,
+            #81c784 52%,
+            #43a047
+        );
+}
+
+.finish-card {
+    width: min(600px, 94vw);
+
+    padding: 35px;
+
+    text-align: center;
+
+    background: rgba(255,255,255,0.97);
+
+    border: 6px solid #263238;
+
+    border-radius: 28px;
+
+    box-shadow:
+        0 12px 0 #263238,
+        0 20px 35px rgba(0,0,0,0.25);
+
+    animation: cardAppear 0.7s ease;
+}
+
+.trophy {
+    font-size: 75px;
+
+    animation:
+        trophyBounce 1.5s ease-in-out infinite;
+}
+
+@keyframes trophyBounce {
+    0%,
+    100% {
+        transform: translateY(0) rotate(-3deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(3deg);
+    }
+}
+
+.finish-card h1 {
+    margin: 10px 0;
+
+    font-size: clamp(28px, 6vw, 43px);
+
+    color: #1565c0;
+}
+
+.finish-subtitle {
+    margin-bottom: 22px;
+
+    font-weight: bold;
+
+    color: #546e7a;
+}
+
+
+/* =========================================================
+   RESULT BOX
+========================================================= */
+
+.result-box {
+    margin: 20px 0;
+
+    padding: 10px 18px;
+
+    border: 4px solid #90a4ae;
+
+    border-radius: 18px;
+
+    background: #f8f9fa;
+}
+
+.result-row {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 12px 0;
+
+    border-bottom: 2px dashed #cfd8dc;
+
+    text-align: left;
+
+    font-size: 17px;
+}
+
+.result-row:last-child {
+    border-bottom: none;
+}
+
+.result-row strong {
+    color: #1565c0;
+}
+
+
+/* =========================================================
+   BADGE
+========================================================= */
+
+.badge {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    margin: 20px auto 25px;
+
+    width: fit-content;
+
+    padding: 12px 22px;
+
+    border: 4px solid #263238;
+
+    border-radius: 18px;
+
+    background: #fff8e1;
+
+    box-shadow:
+        0 5px 0 #263238;
+}
+
+.badge-icon {
+    font-size: 42px;
+}
+
+.badge strong {
+    display: block;
+
+    font-size: 20px;
+
+    color: #f57f17;
+}
+
+.badge small {
+    color: #795548;
+
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   UTILITY
+========================================================= */
+
+.hidden {
+    display: none !important;
+}
+
+.no-scroll {
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .hud-item {
+        min-width: 105px;
+
+        padding: 8px 10px;
+
+        font-size: 14px;
+    }
+
+    .checkpoint {
+        width: 110px;
+
+        min-height: 95px;
+    }
+
+    .checkpoint-icon {
+        font-size: 29px;
+    }
+
+    .checkpoint-name {
+        font-size: 11px;
+    }
+
+    .player {
+        width: 56px;
+        height: 56px;
+
+        font-size: 37px;
+    }
+
+    .controls-hint {
+        display: none;
+    }
+
+    .mobile-controls {
+        display: block;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    body {
+        overflow: hidden;
+    }
+
+    .start-card {
+        padding: 28px 20px;
+
+        border-width: 5px;
+    }
+
+    .logo-icon {
+        font-size: 48px;
+    }
+
+    .start-card h1 {
+        font-size: 42px;
+    }
+
+    .tagline {
+        font-size: 15px;
+
+        margin-bottom: 24px;
+    }
+
+    .name-area input {
+        font-size: 16px;
+
+        padding: 13px;
+    }
+
+    .main-button {
+        font-size: 16px;
+    }
+
+
+    /* HUD */
+
+    .game-hud {
+        top: 7px;
+
+        width: calc(100% - 12px);
+
+        gap: 5px;
+    }
+
+    .hud-item {
+        min-width: 0;
+
+        flex: 1;
+
+        padding: 7px 5px;
+
+        border-width: 3px;
+
+        border-radius: 10px;
+
+        box-shadow:
+            0 4px 0 #263238;
+
+        font-size: 11px;
+    }
+
+
+    /* World */
+
+    .world-map {
+        height: 63%;
+    }
+
+    .mountains {
+        bottom: 40%;
+    }
+
+    .checkpoint {
+        width: 90px;
+
+        min-height: 78px;
+
+        border-width: 3px;
+
+        border-radius: 13px;
+
+        box-shadow:
+            0 5px 0 #263238;
+    }
+
+    .checkpoint-icon {
+        font-size: 23px;
+    }
+
+    .checkpoint-number {
+        font-size: 10px;
+    }
+
+    .checkpoint-name {
+        font-size: 9px;
+    }
+
+    .checkpoint.completed::after {
+        width: 27px;
+        height: 27px;
+
+        font-size: 16px;
+
+        border-width: 3px;
+    }
+
+    .checkpoint.locked::before {
+        font-size: 18px;
+    }
+
+    .player {
+        width: 48px;
+        height: 48px;
+
+        border-width: 3px;
+
+        border-radius: 12px;
+
+        box-shadow:
+            0 5px 0 #263238;
+
+        font-size: 32px;
+    }
+
+
+    /* Modal */
+
+    .modal {
+        padding: 10px;
+    }
+
+    .activity-card {
+        padding: 25px 16px 20px;
+
+        border-width: 5px;
+
+        border-radius: 20px;
+
+        max-height: 94vh;
+    }
+
+    .activity-title {
+        font-size: 25px;
+
+        margin-bottom: 5px;
+    }
+
+    .activity-skill {
+        font-size: 12px;
+
+        margin-bottom: 15px;
+    }
+
+    .question-text {
+        font-size: 18px;
+    }
+
+    .options {
+        grid-template-columns: 1fr;
+
+        gap: 10px;
+    }
+
+    .option-button {
+        min-height: 80px;
+
+        flex-direction: row;
+
+        justify-content: flex-start;
+
+        font-size: 15px;
+    }
+
+    .option-emoji {
+        font-size: 34px;
+    }
+
+
+    /* Kitchen */
+
+    .kitchen-area {
+        grid-template-columns: 1fr;
+    }
+
+    .objects-panel,
+    .target-panel {
+        min-height: 150px;
+    }
+
+    .drag-item {
+        min-width: 70px;
+
+        padding: 8px;
+
+        font-size: 25px;
+    }
+
+
+    /* Speech */
+
+    .speech-buttons {
+        flex-direction: column;
+    }
+
+    .audio-button,
+    .mic-button {
+        width: 100%;
+
+        font-size: 15px;
+    }
+
+    .speech-display {
+        font-size: 17px;
+    }
+
+
+    /* Finish */
+
+    .finish-card {
+        padding: 27px 18px;
+
+        border-width: 5px;
+    }
+
+    .trophy {
+        font-size: 60px;
+    }
+
+    .finish-card h1 {
+        font-size: 28px;
+    }
+
+    .result-row {
+        font-size: 14px;
+
+        padding: 9px 0;
+    }
+
+    .badge {
+        padding: 9px 15px;
+    }
+
+    .badge-icon {
+        font-size: 32px;
+    }
+
+    .badge strong {
+        font-size: 16px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONE
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .start-card h1 {
+        font-size: 35px;
+    }
+
+    .checkpoint {
+        width: 75px;
+
+        min-height: 68px;
+    }
+
+    .checkpoint-icon {
+        font-size: 19px;
+    }
+
+    .checkpoint-name {
+        font-size: 8px;
+    }
+
+    .player {
+        width: 42px;
+        height: 42px;
+
+        font-size: 27px;
+    }
+
+    .mobile-controls {
+        transform: scale(0.85);
+
+        transform-origin: bottom right;
+    }
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+button:focus-visible,
+input:focus-visible {
+    outline: 4px solid #ffca28;
+
+    outline-offset: 3px;
+}
+
+
+/* =========================================================
+   REDUCE MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+
+        animation-iteration-count: 1 !important;
+
+        transition-duration: 0.01ms !important;
+    }
+}
