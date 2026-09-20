@@ -1,0 +1,3495 @@
+/* =========================================================
+   KEMBARA PETARA
+   script.js — VERSI FIXED
+========================================================= */
+
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+const game = {
+
+    studentName: "",
+    score: 0,
+    currentCheckpoint: 0,
+    completedCheckpoints: [],
+    activitiesCompleted: 0,
+    totalActivities: 10,
+    currentActivity: null,
+    currentQuestion: 0,
+
+    speechRecognition: null,
+    isRecording: false,
+    speechSupported: false,
+
+    speechSynthesisSupported:
+        "speechSynthesis" in window,
+
+    player: {
+        x: 5,
+        y: 53,
+        speed: 1.2
+    }
+
+};
+
+
+/* =========================================================
+   CHECKPOINT DATA
+========================================================= */
+
+const checkpointData = {
+
+    1: {
+        name: "Hutan Misteri",
+        icon: "🌳"
+    },
+
+    2: {
+        name: "Dapur Ajaib",
+        icon: "🍳"
+    },
+
+    3: {
+        name: "Taman Bicara",
+        icon: "🌳"
+    },
+
+    4: {
+        name: "Kedai Runcit Pak Ali",
+        icon: "🛒"
+    },
+
+    5: {
+        name: "Gunung Ayat",
+        icon: "⛰️"
+    }
+
+};
+
+
+/* =========================================================
+   DOM ELEMENTS
+========================================================= */
+
+let startScreen;
+let worldScreen;
+let finishScreen;
+let activityModal;
+let feedbackModal;
+let activityContent;
+let studentNameInput;
+let startButton;
+let restartButton;
+let closeActivity;
+let player;
+let hudName;
+let scoreDisplay;
+let checkpointDisplay;
+let startError;
+let feedbackTitle;
+let feedbackMessage;
+let feedbackIcon;
+let feedbackScore;
+let feedbackButton;
+let finalName;
+let finalScore;
+let finalCheckpoint;
+let finalActivities;
+let finalPercentage;
+
+
+/* =========================================================
+   INITIALISE
+========================================================= */
+
+function initialiseGame() {
+
+    console.log("Kembara PeTara sedang dimulakan...");
+
+
+    /* Cari semua elemen selepas HTML siap */
+
+    startScreen =
+        document.getElementById("startScreen");
+
+    worldScreen =
+        document.getElementById("worldScreen");
+
+    finishScreen =
+        document.getElementById("finishScreen");
+
+    activityModal =
+        document.getElementById("activityModal");
+
+    feedbackModal =
+        document.getElementById("feedbackModal");
+
+    activityContent =
+        document.getElementById("activityContent");
+
+    studentNameInput =
+        document.getElementById("studentName");
+
+    startButton =
+        document.getElementById("startButton");
+
+    restartButton =
+        document.getElementById("restartButton");
+
+    closeActivity =
+        document.getElementById("closeActivity");
+
+    player =
+        document.getElementById("player");
+
+    hudName =
+        document.getElementById("hudName");
+
+    scoreDisplay =
+        document.getElementById("scoreDisplay");
+
+    checkpointDisplay =
+        document.getElementById("checkpointDisplay");
+
+    startError =
+        document.getElementById("startError");
+
+    feedbackTitle =
+        document.getElementById("feedbackTitle");
+
+    feedbackMessage =
+        document.getElementById("feedbackMessage");
+
+    feedbackIcon =
+        document.getElementById("feedbackIcon");
+
+    feedbackScore =
+        document.getElementById("feedbackScore");
+
+    feedbackButton =
+        document.getElementById("feedbackButton");
+
+    finalName =
+        document.getElementById("finalName");
+
+    finalScore =
+        document.getElementById("finalScore");
+
+    finalCheckpoint =
+        document.getElementById("finalCheckpoint");
+
+    finalActivities =
+        document.getElementById("finalActivities");
+
+    finalPercentage =
+        document.getElementById("finalPercentage");
+
+
+    /* Pastikan elemen utama wujud */
+
+    if (!startButton) {
+
+        console.error(
+            "ERROR: startButton tidak dijumpai."
+        );
+
+        return;
+
+    }
+
+
+    setupSpeechRecognition();
+
+    setupKeyboardControls();
+
+    setupMobileControls();
+
+    setupButtons();
+
+    updateHUD();
+
+    updateCheckpointVisuals();
+
+    resetPlayerPosition();
+
+
+    console.log(
+        "Kembara PeTara berjaya dimulakan."
+    );
+
+}
+
+
+/* =========================================================
+   BUTTON SETUP
+========================================================= */
+
+function setupButtons() {
+
+
+    /* MULA */
+
+    if (startButton) {
+
+        startButton.type = "button";
+
+        startButton.addEventListener(
+            "click",
+            function(event) {
+
+                event.preventDefault();
+
+                startGame();
+
+            }
+        );
+
+    }
+
+
+    /* MAIN SEMULA */
+
+    if (restartButton) {
+
+        restartButton.type = "button";
+
+        restartButton.addEventListener(
+            "click",
+            function(event) {
+
+                event.preventDefault();
+
+                resetGame();
+
+            }
+        );
+
+    }
+
+
+    /* TUTUP AKTIVITI */
+
+    if (closeActivity) {
+
+        closeActivity.type = "button";
+
+        closeActivity.addEventListener(
+            "click",
+            closeActivityModal
+        );
+
+    }
+
+
+    /* FEEDBACK */
+
+    if (feedbackButton) {
+
+        feedbackButton.type = "button";
+
+        feedbackButton.addEventListener(
+            "click",
+            closeFeedback
+        );
+
+    }
+
+
+    /* ENTER */
+
+    if (studentNameInput) {
+
+        studentNameInput.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (event.key === "Enter") {
+
+                    event.preventDefault();
+
+                    startGame();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* CHECKPOINT */
+
+    document
+        .querySelectorAll(".checkpoint")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function(event) {
+
+                    event.preventDefault();
+
+                    const checkpoint =
+                        Number(
+                            this.dataset.checkpoint
+                        );
+
+                    openCheckpoint(
+                        checkpoint
+                    );
+
+                }
+            );
+
+        });
+
+}
+
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+function startGame() {
+
+    console.log("Butang MULA ditekan.");
+
+
+    if (!studentNameInput) {
+
+        console.error(
+            "Input nama tidak dijumpai."
+        );
+
+        return;
+
+    }
+
+
+    const name =
+        studentNameInput.value.trim();
+
+
+    if (!name) {
+
+        if (startError) {
+
+            startError.textContent =
+                "Sila masukkan nama kamu dahulu 😊";
+
+        }
+
+        studentNameInput.focus();
+
+        return;
+
+    }
+
+
+    game.studentName = name;
+
+
+    if (startError) {
+
+        startError.textContent = "";
+
+    }
+
+
+    if (hudName) {
+
+        hudName.textContent =
+            game.studentName;
+
+    }
+
+
+    showScreen(
+        worldScreen
+    );
+
+
+    resetPlayerPosition();
+
+    updateHUD();
+
+    updateCheckpointVisuals();
+
+
+    console.log(
+        "Berjaya masuk ke dunia permainan."
+    );
+
+}
+
+
+/* =========================================================
+   SCREEN MANAGEMENT
+========================================================= */
+
+function showScreen(screen) {
+
+    if (!screen) return;
+
+
+    if (startScreen) {
+
+        startScreen.classList.remove(
+            "active"
+        );
+
+    }
+
+    if (worldScreen) {
+
+        worldScreen.classList.remove(
+            "active"
+        );
+
+    }
+
+    if (finishScreen) {
+
+        finishScreen.classList.remove(
+            "active"
+        );
+
+    }
+
+
+    screen.classList.add(
+        "active"
+    );
+
+}
+
+
+/* =========================================================
+   RESET GAME
+========================================================= */
+
+function resetGame() {
+
+    game.studentName = "";
+
+    game.score = 0;
+
+    game.currentCheckpoint = 0;
+
+    game.completedCheckpoints = [];
+
+    game.activitiesCompleted = 0;
+
+    game.currentActivity = null;
+
+    game.currentQuestion = 0;
+
+    game.player.x = 5;
+
+    game.player.y = 53;
+
+
+    if (studentNameInput) {
+
+        studentNameInput.value = "";
+
+    }
+
+
+    if (startError) {
+
+        startError.textContent = "";
+
+    }
+
+
+    closeActivityModal();
+
+    closeFeedback();
+
+
+    showScreen(
+        startScreen
+    );
+
+
+    updateHUD();
+
+    updateCheckpointVisuals();
+
+    resetPlayerPosition();
+
+}
+
+
+/* =========================================================
+   HUD
+========================================================= */
+
+function updateHUD() {
+
+    if (scoreDisplay) {
+
+        scoreDisplay.textContent =
+            game.score;
+
+    }
+
+
+    if (checkpointDisplay) {
+
+        checkpointDisplay.textContent =
+            `${game.completedCheckpoints.length}/5`;
+
+    }
+
+
+    if (hudName) {
+
+        hudName.textContent =
+            game.studentName || "Murid";
+
+    }
+
+}
+
+
+/* =========================================================
+   PLAYER MOVEMENT
+========================================================= */
+
+const keysPressed = new Set();
+
+
+function setupKeyboardControls() {
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            const key =
+                event.key.toLowerCase();
+
+
+            if (
+                [
+                    "w",
+                    "a",
+                    "s",
+                    "d",
+                    "arrowup",
+                    "arrowdown",
+                    "arrowleft",
+                    "arrowright"
+                ].includes(key)
+            ) {
+
+                event.preventDefault();
+
+                keysPressed.add(key);
+
+            }
+
+        }
+    );
+
+
+    document.addEventListener(
+        "keyup",
+        function(event) {
+
+            const key =
+                event.key.toLowerCase();
+
+            keysPressed.delete(key);
+
+        }
+    );
+
+
+    requestAnimationFrame(
+        movementLoop
+    );
+
+}
+
+
+/* =========================================================
+   MOVEMENT LOOP
+========================================================= */
+
+function movementLoop() {
+
+    if (
+        worldScreen &&
+        worldScreen.classList.contains("active")
+    ) {
+
+        let dx = 0;
+        let dy = 0;
+
+
+        if (
+            keysPressed.has("w") ||
+            keysPressed.has("arrowup")
+        ) {
+
+            dy -= game.player.speed;
+
+        }
+
+
+        if (
+            keysPressed.has("s") ||
+            keysPressed.has("arrowdown")
+        ) {
+
+            dy += game.player.speed;
+
+        }
+
+
+        if (
+            keysPressed.has("a") ||
+            keysPressed.has("arrowleft")
+        ) {
+
+            dx -= game.player.speed;
+
+        }
+
+
+        if (
+            keysPressed.has("d") ||
+            keysPressed.has("arrowright")
+        ) {
+
+            dx += game.player.speed;
+
+        }
+
+
+        if (
+            dx !== 0 ||
+            dy !== 0
+        ) {
+
+            movePlayer(
+                dx,
+                dy
+            );
+
+        }
+
+    }
+
+
+    requestAnimationFrame(
+        movementLoop
+    );
+
+}
+
+
+/* =========================================================
+   MOVE PLAYER
+========================================================= */
+
+function movePlayer(
+    dx,
+    dy
+) {
+
+    game.player.x += dx;
+
+    game.player.y += dy;
+
+
+    game.player.x =
+        Math.max(
+            2,
+            Math.min(
+                96,
+                game.player.x
+            )
+        );
+
+
+    game.player.y =
+        Math.max(
+            8,
+            Math.min(
+                90,
+                game.player.y
+            )
+        );
+
+
+    updatePlayerPosition();
+
+    checkCheckpointCollision();
+
+}
+
+
+/* =========================================================
+   UPDATE PLAYER POSITION
+========================================================= */
+
+function updatePlayerPosition() {
+
+    if (!player) return;
+
+
+    player.style.left =
+        `${game.player.x}%`;
+
+    player.style.top =
+        `${game.player.y}%`;
+
+}
+
+
+/* =========================================================
+   RESET PLAYER
+========================================================= */
+
+function resetPlayerPosition() {
+
+    game.player.x = 5;
+
+    game.player.y = 53;
+
+    updatePlayerPosition();
+
+}
+
+
+/* =========================================================
+   MOBILE CONTROLS
+========================================================= */
+
+function setupMobileControls() {
+
+    document
+        .querySelectorAll(
+            "#mobileControls button"
+        )
+        .forEach(button => {
+
+            const key =
+                button.dataset.key.toLowerCase();
+
+
+            button.addEventListener(
+                "touchstart",
+                function(event) {
+
+                    event.preventDefault();
+
+                    keysPressed.add(key);
+
+                },
+                {
+                    passive: false
+                }
+            );
+
+
+            button.addEventListener(
+                "touchend",
+                function(event) {
+
+                    event.preventDefault();
+
+                    keysPressed.delete(key);
+
+                },
+                {
+                    passive: false
+                }
+            );
+
+
+            button.addEventListener(
+                "mousedown",
+                function() {
+
+                    keysPressed.add(key);
+
+                }
+            );
+
+
+            button.addEventListener(
+                "mouseup",
+                function() {
+
+                    keysPressed.delete(key);
+
+                }
+            );
+
+        });
+
+}
+
+
+/* =========================================================
+   CHECKPOINT COLLISION
+========================================================= */
+
+function checkCheckpointCollision() {
+
+    const checkpoints =
+        document.querySelectorAll(
+            ".checkpoint.unlocked"
+        );
+
+
+    checkpoints.forEach(
+        checkpoint => {
+
+            const rect =
+                checkpoint.getBoundingClientRect();
+
+            const playerRect =
+                player.getBoundingClientRect();
+
+
+            const touching =
+                playerRect.left < rect.right &&
+                playerRect.right > rect.left &&
+                playerRect.top < rect.bottom &&
+                playerRect.bottom > rect.top;
+
+
+            if (touching) {
+
+                const number =
+                    Number(
+                        checkpoint.dataset.checkpoint
+                    );
+
+
+                if (
+                    !game.completedCheckpoints
+                        .includes(number)
+                ) {
+
+                    openCheckpoint(number);
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   CHECKPOINT VISUALS
+========================================================= */
+
+function updateCheckpointVisuals() {
+
+    for (
+        let i = 1;
+        i <= 5;
+        i++
+    ) {
+
+        const checkpoint =
+            document.getElementById(
+                `checkpoint${i}`
+            );
+
+
+        if (!checkpoint) continue;
+
+
+        checkpoint.classList.remove(
+            "unlocked",
+            "locked",
+            "completed"
+        );
+
+
+        if (
+            game.completedCheckpoints
+                .includes(i)
+        ) {
+
+            checkpoint.classList.add(
+                "completed"
+            );
+
+            checkpoint.disabled = true;
+
+        }
+
+        else if (
+            i === 1 ||
+            game.completedCheckpoints
+                .includes(i - 1)
+        ) {
+
+            checkpoint.classList.add(
+                "unlocked"
+            );
+
+            checkpoint.disabled = false;
+
+        }
+
+        else {
+
+            checkpoint.classList.add(
+                "locked"
+            );
+
+            checkpoint.disabled = true;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   OPEN CHECKPOINT
+========================================================= */
+
+function openCheckpoint(number) {
+
+    if (
+        number !== 1 &&
+        !game.completedCheckpoints
+            .includes(number - 1)
+    ) {
+
+        return;
+
+    }
+
+
+    game.currentCheckpoint =
+        number;
+
+    game.currentQuestion = 0;
+
+
+    switch (number) {
+
+        case 1:
+            openCP1();
+            break;
+
+        case 2:
+            openCP2();
+            break;
+
+        case 3:
+            openCP3();
+            break;
+
+        case 4:
+            openCP4();
+            break;
+
+        case 5:
+            openCP5();
+            break;
+
+    }
+
+}
+
+
+/* =========================================================
+   ACTIVITY MODAL
+========================================================= */
+
+function openActivity(content) {
+
+    if (!activityContent) return;
+
+
+    activityContent.innerHTML =
+        content;
+
+
+    activityModal.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+function closeActivityModal() {
+
+    stopSpeechRecognition();
+
+
+    if (activityModal) {
+
+        activityModal.classList.add(
+            "hidden"
+        );
+
+    }
+
+
+    if (activityContent) {
+
+        activityContent.innerHTML = "";
+
+    }
+
+}
+
+
+/* =========================================================
+   CP1
+========================================================= */
+
+const cp1Questions = [
+
+    {
+        audio:
+            "Pada waktu pagi, Amir pergi ke taman bersama ibunya. Dia ternampak seekor kucing sedang tidur di bawah pokok.",
+
+        question:
+            "Apakah haiwan yang dilihat oleh Amir?",
+
+        options: [
+            {
+                emoji: "🐱",
+                text: "Kucing",
+                correct: true
+            },
+            {
+                emoji: "🐰",
+                text: "Arnab",
+                correct: false
+            },
+            {
+                emoji: "🐦",
+                text: "Burung",
+                correct: false
+            }
+        ]
+    },
+
+    {
+        audio:
+            "Siti pergi ke dapur untuk mengambil sarapan. Dia mengambil sebiji epal merah dan segelas susu.",
+
+        question:
+            "Apakah buah yang diambil oleh Siti?",
+
+        options: [
+            {
+                emoji: "🍎",
+                text: "Epal",
+                correct: true
+            },
+            {
+                emoji: "🍌",
+                text: "Pisang",
+                correct: false
+            },
+            {
+                emoji: "🍊",
+                text: "Oren",
+                correct: false
+            }
+        ]
+    }
+
+];
+
+
+function openCP1() {
+
+    const q =
+        cp1Questions[
+            game.currentQuestion
+        ];
+
+
+    openActivity(`
+
+        <h2 class="activity-title">
+            🌳 Hutan Misteri
+        </h2>
+
+        <span class="activity-skill">
+            👂 Kemahiran: Mendengar dan memahami
+        </span>
+
+        <div class="audio-box">
+
+            <p>
+                Dengarkan cerita dengan teliti.
+            </p>
+
+            <button
+                type="button"
+                class="audio-button"
+                id="listenQuestion"
+            >
+                🔊 DENGAR
+            </button>
+
+        </div>
+
+        <div class="question-text">
+
+            <span class="question-number">
+                Soalan ${game.currentQuestion + 1}
+            </span>
+
+            <br>
+
+            ${q.question}
+
+        </div>
+
+        <div class="options">
+
+            ${q.options.map(
+                (option, index) => `
+
+                    <button
+                        type="button"
+                        class="option-button"
+                        data-option="${index}"
+                    >
+
+                        <span class="option-emoji">
+                            ${option.emoji}
+                        </span>
+
+                        <span>
+                            ${option.text}
+                        </span>
+
+                    </button>
+
+                `
+            ).join("")}
+
+        </div>
+
+    `);
+
+
+    document
+        .getElementById("listenQuestion")
+        .addEventListener(
+            "click",
+            () => speakText(q.audio)
+        );
+
+
+    document
+        .querySelectorAll(
+            ".option-button"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function() {
+
+                    const index =
+                        Number(
+                            this.dataset.option
+                        );
+
+                    handleCP1Answer(
+                        q.options[index].correct
+                    );
+
+                }
+            );
+
+        });
+
+
+    setTimeout(
+        () => speakText(q.audio),
+        500
+    );
+
+}
+
+
+function handleCP1Answer(correct) {
+
+    if (!correct) {
+
+        showFeedback(
+            false,
+            "Cuba lagi!",
+            "Dengarkan sekali lagi dan pilih jawapan yang betul. 👂",
+            0,
+            () => {
+
+                openCP1();
+
+            }
+        );
+
+        return;
+
+    }
+
+
+    game.score += 5;
+    game.activitiesCompleted++;
+
+
+    if (
+        game.currentQuestion <
+        cp1Questions.length - 1
+    ) {
+
+        game.currentQuestion++;
+
+
+        showFeedback(
+            true,
+            "Syabas!",
+            "Jawapan kamu betul! ⭐",
+            5,
+            () => {
+
+                openCP1();
+
+            }
+        );
+
+    }
+
+    else {
+
+        completeCheckpoint(
+            1,
+            10
+        );
+
+    }
+
+
+    updateHUD();
+
+}
+
+
+/* =========================================================
+   CP2
+========================================================= */
+
+let cp2Step = 0;
+
+
+function openCP2() {
+
+    cp2Step = 0;
+
+    renderCP2();
+
+}
+
+
+function renderCP2() {
+
+    if (cp2Step === 0) {
+
+        renderCP2Step1();
+
+    }
+
+    else {
+
+        renderCP2Step2();
+
+    }
+
+}
+
+
+function renderCP2Step1() {
+
+    openActivity(`
+
+        <h2 class="activity-title">
+            🍳 Dapur Ajaib
+        </h2>
+
+        <span class="activity-skill">
+            👂 Mendengar dan mengikuti arahan
+        </span>
+
+        <div class="audio-box">
+
+            <p>
+                Dengarkan arahan.
+            </p>
+
+            <button
+                type="button"
+                class="audio-button"
+                id="kitchenAudio"
+            >
+                🔊 DENGAR ARAHAN
+            </button>
+
+        </div>
+
+        <div class="question-text">
+            Ambil pisau dan gunakan pisau
+            untuk memotong ikan.
+        </div>
+
+        <div class="kitchen-area">
+
+            <div class="objects-panel">
+
+                <div class="panel-title">
+                    🧰 Objek
+                </div>
+
+                <div class="draggable-items">
+
+                    <div
+                        class="drag-item"
+                        draggable="true"
+                        data-item="knife"
+                    >
+                        🔪
+                    </div>
+
+                    <div
+                        class="drag-item"
+                        draggable="true"
+                        data-item="plate"
+                    >
+                        🍽️
+                    </div>
+
+                    <div
+                        class="drag-item"
+                        draggable="true"
+                        data-item="spoon"
+                    >
+                        🥄
+                    </div>
+
+                    <div
+                        class="drag-item"
+                        draggable="true"
+                        data-item="cup"
+                    >
+                        ☕
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="target-panel">
+
+                <div class="panel-title">
+                    🐟 Sasaran
+                </div>
+
+                <div
+                    class="drop-zone"
+                    id="fishTarget"
+                    data-target="knife"
+                >
+                    🐟
+                    <br>
+                    Letakkan pisau di sini
+                </div>
+
+            </div>
+
+        </div>
+
+    `);
+
+
+    document
+        .getElementById("kitchenAudio")
+        .addEventListener(
+            "click",
+            () => speakText(
+                "Ambil pisau dan gunakan pisau untuk memotong ikan."
+            )
+        );
+
+
+    setupDragAndDrop();
+
+
+    setTimeout(
+        () => speakText(
+            "Ambil pisau dan gunakan pisau untuk memotong ikan."
+        ),
+        500
+    );
+
+}
+
+
+function setupDragAndDrop() {
+
+    const items =
+        document.querySelectorAll(
+            ".drag-item"
+        );
+
+
+    const zones =
+        document.querySelectorAll(
+            ".drop-zone"
+        );
+
+
+    items.forEach(item => {
+
+        item.addEventListener(
+            "dragstart",
+            function(event) {
+
+                event.dataTransfer.setData(
+                    "text/plain",
+                    this.dataset.item
+                );
+
+            }
+        );
+
+    });
+
+
+    zones.forEach(zone => {
+
+        zone.addEventListener(
+            "dragover",
+            function(event) {
+
+                event.preventDefault();
+
+                this.classList.add(
+                    "drag-over"
+                );
+
+            }
+        );
+
+
+        zone.addEventListener(
+            "dragleave",
+            function() {
+
+                this.classList.remove(
+                    "drag-over"
+                );
+
+            }
+        );
+
+
+        zone.addEventListener(
+            "drop",
+            function(event) {
+
+                event.preventDefault();
+
+                this.classList.remove(
+                    "drag-over"
+                );
+
+
+                const item =
+                    event.dataTransfer
+                        .getData(
+                            "text/plain"
+                        );
+
+
+                if (
+                    item ===
+                    this.dataset.target
+                ) {
+
+                    game.score += 5;
+                    game.activitiesCompleted++;
+
+
+                    showFeedback(
+                        true,
+                        "Hebat!",
+                        "Kamu berjaya mengikuti arahan! 🎉",
+                        5,
+                        () => {
+
+                            cp2Step = 1;
+
+                            renderCP2();
+
+                        }
+                    );
+
+                }
+
+                else {
+
+                    showFeedback(
+                        false,
+                        "Cuba lagi!",
+                        "Dengar arahan sekali lagi. 🔊",
+                        0,
+                        () => {
+
+                            renderCP2Step1();
+
+                        }
+                    );
+
+                }
+
+            }
+        );
+
+    });
+
+}
+
+
+function renderCP2Step2() {
+
+    openActivity(`
+
+        <h2 class="activity-title">
+            🍳 Dapur Ajaib
+        </h2>
+
+        <span class="activity-skill">
+            👂 Mendengar dan mengikuti arahan
+        </span>
+
+        <div class="audio-box">
+
+            <p>
+                Dengarkan arahan.
+            </p>
+
+            <button
+                type="button"
+                class="audio-button"
+                id="kitchenAudio2"
+            >
+                🔊 DENGAR ARAHAN
+            </button>
+
+        </div>
+
+        <div class="question-text">
+            Ambil pinggan dan letakkan
+            ikan di atas pinggan.
+        </div>
+
+        <div class="kitchen-area">
+
+            <div class="objects-panel">
+
+                <div class="panel-title">
+                    🧰 Objek
+                </div>
+
+                <div class="draggable-items">
+
+                    <div
+                        class="drag-item"
+                        draggable="true"
+                        data-item="plate"
+                    >
+                        🍽️
+                    </div>
+
+                    <div
+                        class="drag-item"
+                        draggable="true"
+                        data-item="knife"
+                    >
+                        🔪
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="target-panel">
+
+                <div class="panel-title">
+                    🐟 Sasaran
+                </div>
+
+                <div
+                    class="drop-zone"
+                    id="plateTarget"
+                    data-target="plate"
+                >
+                    🐟
+                    <br>
+                    Letakkan ikan di atas pinggan
+                </div>
+
+            </div>
+
+        </div>
+
+    `);
+
+
+    document
+        .getElementById("kitchenAudio2")
+        .addEventListener(
+            "click",
+            () => speakText(
+                "Ambil pinggan dan letakkan ikan di atas pinggan."
+            )
+        );
+
+
+    setupDragAndDrop();
+
+
+    setTimeout(
+        () => speakText(
+            "Ambil pinggan dan letakkan ikan di atas pinggan."
+        ),
+        500
+    );
+
+}
+
+
+/* =========================================================
+   CP3
+========================================================= */
+
+const cp3Questions = [
+
+    {
+        audio:
+            "Pada hari Ahad, Amir pergi ke taman bersama keluarganya. Amir membawa sebiji bola. Dia bermain bola bersama adiknya.",
+
+        question:
+            "Apakah yang dibawa oleh Amir ke taman?",
+
+        keywords: [
+            "bola"
+        ]
+    },
+
+    {
+        audio:
+            "Mei Ling mempunyai seekor kucing bernama Tompok. Setiap pagi, Mei Ling memberikan makanan kepada Tompok. Tompok suka makan ikan.",
+
+        question:
+            "Apakah makanan yang disukai oleh Tompok?",
+
+        keywords: [
+            "ikan"
+        ]
+    }
+
+];
+
+
+function openCP3() {
+
+    const q =
+        cp3Questions[
+            game.currentQuestion
+        ];
+
+
+    openActivity(`
+
+        <h2 class="activity-title">
+            🌳 Taman Bicara
+        </h2>
+
+        <span class="activity-skill">
+            👂 Mendengar dan 🗣️ bertutur
+        </span>
+
+        <div class="audio-box">
+
+            <p>
+                Dengarkan soalan.
+            </p>
+
+            <button
+                type="button"
+                class="audio-button"
+                id="cp3Audio"
+            >
+                🔊 DENGAR SOALAN
+            </button>
+
+        </div>
+
+        <div class="question-text">
+            ${q.question}
+        </div>
+
+        <div class="speech-area">
+
+            <div class="speech-buttons">
+
+                <button
+                    type="button"
+                    class="audio-button"
+                    id="cp3Listen"
+                >
+                    🔊 DENGAR
+                </button>
+
+                <button
+                    type="button"
+                    class="mic-button"
+                    id="cp3Mic"
+                >
+                    🎤 RAKAM SUARA
+                </button>
+
+            </div>
+
+            <div
+                class="speech-display"
+                id="speechDisplay"
+            >
+                Tekan mikrofon dan jawab.
+            </div>
+
+            <div
+                class="speech-status"
+                id="speechStatus"
+            >
+                Sedia mendengar...
+            </div>
+
+        </div>
+
+    `);
+
+
+    const listen =
+        () => speakText(q.audio);
+
+
+    document
+        .getElementById("cp3Audio")
+        .addEventListener(
+            "click",
+            listen
+        );
+
+
+    document
+        .getElementById("cp3Listen")
+        .addEventListener(
+            "click",
+            listen
+        );
+
+
+    document
+        .getElementById("cp3Mic")
+        .addEventListener(
+            "click",
+            function() {
+
+                startSpeechRecognition(
+                    q.keywords,
+                    this,
+                    handleCP3Result
+                );
+
+            }
+        );
+
+
+    setTimeout(
+        listen,
+        500
+    );
+
+}
+
+
+function handleCP3Result(
+    transcript,
+    keywords
+) {
+
+    const matched =
+        keywordMatch(
+            transcript,
+            keywords
+        );
+
+
+    if (matched) {
+
+        game.score += 5;
+        game.activitiesCompleted++;
+
+
+        if (
+            game.currentQuestion <
+            cp3Questions.length - 1
+        ) {
+
+            game.currentQuestion++;
+
+
+            showFeedback(
+                true,
+                "Bagus!",
+                "Jawapan kamu betul! 🎉",
+                5,
+                () => {
+
+                    openCP3();
+
+                }
+            );
+
+        }
+
+        else {
+
+            completeCheckpoint(
+                3,
+                10
+            );
+
+        }
+
+
+        updateHUD();
+
+    }
+
+    else {
+
+        showFeedback(
+            false,
+            "Cuba lagi!",
+            "Belum tepat. Dengarkan soalan sekali lagi. 👂",
+            0,
+            () => {
+
+                openCP3();
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CP4
+========================================================= */
+
+const cp4Questions = [
+
+    {
+        audio:
+            "Selamat datang! Boleh kamu bantu saya?",
+
+        question:
+            "Jawab kepada Pak Ali.",
+
+        keywords: [
+            "ya",
+            "boleh",
+            "bantu"
+        ]
+    },
+
+    {
+        audio:
+            "Belikan saya 3 barang ini di kedai runcit Pak Ali. Barang itu ialah cuka, kicap dan garam.",
+
+        question:
+            "Berikan respons yang sesuai.",
+
+        keywords: [
+            "baik",
+            "boleh",
+            "beli"
+        ]
+    },
+
+    {
+        audio:
+            "Boleh kamu ulang semula apakah barang yang saya perlukan tadi?",
+
+        question:
+            "Sebut ketiga-tiga barang.",
+
+        keywords: [
+            "cuka",
+            "kicap",
+            "garam"
+        ],
+
+        requireAll: true
+    }
+
+];
+
+
+function openCP4() {
+
+    const q =
+        cp4Questions[
+            game.currentQuestion
+        ];
+
+
+    openActivity(`
+
+        <h2 class="activity-title">
+            🛒 Kedai Runcit Pak Ali
+        </h2>
+
+        <span class="activity-skill">
+            🗣️ Bertutur dan berkomunikasi
+        </span>
+
+        <div class="audio-box">
+
+            <p>
+                Dengarkan Pak Ali.
+            </p>
+
+            <button
+                type="button"
+                class="audio-button"
+                id="cp4Audio"
+            >
+                🔊 DENGAR
+            </button>
+
+        </div>
+
+        <div class="question-text">
+            ${q.question}
+        </div>
+
+        <div class="speech-area">
+
+            <div class="speech-buttons">
+
+                <button
+                    type="button"
+                    class="audio-button"
+                    id="cp4Listen"
+                >
+                    🔊 DENGAR
+                </button>
+
+                <button
+                    type="button"
+                    class="mic-button"
+                    id="cp4Mic"
+                >
+                    🎤 RAKAM SUARA
+                </button>
+
+            </div>
+
+            <div
+                class="speech-display"
+                id="speechDisplay"
+            >
+                Tekan mikrofon dan jawab.
+            </div>
+
+            <div
+                class="speech-status"
+                id="speechStatus"
+            >
+                Sedia mendengar...
+            </div>
+
+        </div>
+
+    `);
+
+
+    const listen =
+        () => speakText(q.audio);
+
+
+    document
+        .getElementById("cp4Audio")
+        .addEventListener(
+            "click",
+            listen
+        );
+
+
+    document
+        .getElementById("cp4Listen")
+        .addEventListener(
+            "click",
+            listen
+        );
+
+
+    document
+        .getElementById("cp4Mic")
+        .addEventListener(
+            "click",
+            function() {
+
+                startSpeechRecognition(
+                    q.keywords,
+                    this,
+                    handleCP4Result,
+                    q.requireAll || false
+                );
+
+            }
+        );
+
+
+    setTimeout(
+        listen,
+        500
+    );
+
+}
+
+
+function handleCP4Result(
+    transcript,
+    keywords,
+    requireAll
+) {
+
+    const matched =
+        requireAll
+            ? keywordMatchAll(
+                transcript,
+                keywords
+            )
+            : keywordMatch(
+                transcript,
+                keywords
+            );
+
+
+    if (matched) {
+
+        game.score += 5;
+        game.activitiesCompleted++;
+
+
+        if (
+            game.currentQuestion <
+            cp4Questions.length - 1
+        ) {
+
+            game.currentQuestion++;
+
+
+            showFeedback(
+                true,
+                "Hebat!",
+                "Jawapan kamu diterima! ⭐",
+                5,
+                () => {
+
+                    openCP4();
+
+                }
+            );
+
+        }
+
+        else {
+
+            completeCheckpoint(
+                4,
+                15
+            );
+
+        }
+
+
+        updateHUD();
+
+    }
+
+    else {
+
+        showFeedback(
+            false,
+            "Cuba lagi!",
+            "Belum tepat. Dengarkan dialog sekali lagi. 👂",
+            0,
+            () => {
+
+                openCP4();
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CP5
+========================================================= */
+
+const cp5Sentences = [
+
+    {
+        sentence:
+            "Ali bermain bola di padang bersama rakannya.",
+
+        words: [
+            "Ali",
+            "bermain",
+            "bola",
+            "di",
+            "padang",
+            "bersama",
+            "rakannya"
+        ]
+    },
+
+    {
+        sentence:
+            "Ibu membeli sayur dan buah di pasar.",
+
+        words: [
+            "Ibu",
+            "membeli",
+            "sayur",
+            "dan",
+            "buah",
+            "di",
+            "pasar"
+        ]
+    }
+
+];
+
+
+function openCP5() {
+
+    const q =
+        cp5Sentences[
+            game.currentQuestion
+        ];
+
+
+    openActivity(`
+
+        <h2 class="activity-title">
+            ⛰️ Gunung Ayat
+        </h2>
+
+        <span class="activity-skill">
+            👂 Mendengar, mengingat dan mengulang
+        </span>
+
+        <div class="audio-box">
+
+            <p>
+                Dengarkan ayat dengan teliti.
+            </p>
+
+            <button
+                type="button"
+                class="audio-button"
+                id="cp5Listen"
+            >
+                🔊 DENGAR
+            </button>
+
+        </div>
+
+        <div class="speech-area">
+
+            <div class="speech-buttons">
+
+                <button
+                    type="button"
+                    class="mic-button"
+                    id="cp5Mic"
+                >
+                    🎤 RAKAM SUARA
+                </button>
+
+            </div>
+
+            <div
+                class="speech-display"
+                id="speechDisplay"
+            >
+                Tekan mikrofon dan ulang ayat.
+            </div>
+
+            <div
+                class="speech-status"
+                id="speechStatus"
+            >
+                Sedia mendengar...
+            </div>
+
+            <div class="word-blocks">
+
+                ${q.words.map(
+                    word => `
+
+                        <span
+                            class="word-block"
+                            data-word="${word}"
+                        >
+                            ${word}
+                        </span>
+
+                    `
+                ).join("")}
+
+            </div>
+
+            <div class="progress-wrapper">
+
+                <div class="progress-label">
+
+                    <span>
+                        Ketepatan
+                    </span>
+
+                    <span id="wordPercentage">
+                        0%
+                    </span>
+
+                </div>
+
+                <div class="progress-bar">
+
+                    <div
+                        class="progress-fill"
+                        id="wordProgress"
+                    ></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `);
+
+
+    document
+        .getElementById("cp5Listen")
+        .addEventListener(
+            "click",
+            () => {
+
+                speakText(
+                    q.sentence
+                );
+
+            }
+        );
+
+
+    document
+        .getElementById("cp5Mic")
+        .addEventListener(
+            "click",
+            function() {
+
+                startCP5Recognition(
+                    q,
+                    this
+                );
+
+            }
+        );
+
+
+    setTimeout(
+        () => speakText(
+            q.sentence
+        ),
+        500
+    );
+
+}
+
+
+/* =========================================================
+   CP5 SPEECH
+========================================================= */
+
+function startCP5Recognition(
+    question,
+    button
+) {
+
+    if (!game.speechSupported) {
+
+        showSpeechUnsupported();
+
+        return;
+
+    }
+
+
+    if (game.isRecording) {
+
+        stopSpeechRecognition();
+
+        return;
+
+    }
+
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    const recognition =
+        new SpeechRecognition();
+
+
+    game.speechRecognition =
+        recognition;
+
+    game.isRecording = true;
+
+
+    recognition.lang = "ms-MY";
+
+    recognition.continuous = true;
+
+    recognition.interimResults = true;
+
+    recognition.maxAlternatives = 1;
+
+
+    button.textContent =
+        "⏹ SELESAI RAKAMAN";
+
+    button.classList.add(
+        "recording"
+    );
+
+
+    const display =
+        document.getElementById(
+            "speechDisplay"
+        );
+
+    const status =
+        document.getElementById(
+            "speechStatus"
+        );
+
+    const percentage =
+        document.getElementById(
+            "wordPercentage"
+        );
+
+    const progress =
+        document.getElementById(
+            "wordProgress"
+        );
+
+
+    recognition.onstart =
+        function() {
+
+            status.textContent =
+                "🎤 Sedang mendengar...";
+
+        };
+
+
+    recognition.onresult =
+        function(event) {
+
+            let finalText = "";
+            let interimText = "";
+
+
+            for (
+                let i = event.resultIndex;
+                i < event.results.length;
+                i++
+            ) {
+
+                const result =
+                    event.results[i];
+
+
+                if (
+                    result.isFinal
+                ) {
+
+                    finalText +=
+                        result[0].transcript + " ";
+
+                }
+
+                else {
+
+                    interimText +=
+                        result[0].transcript;
+
+                }
+
+            }
+
+
+            const combined =
+                (
+                    finalText ||
+                    interimText
+                ).trim();
+
+
+            display.textContent =
+                combined ||
+                "Mendengar...";
+
+
+            updateWordBlocks(
+                combined,
+                question.words
+            );
+
+
+            const match =
+                calculateWordMatch(
+                    combined,
+                    question.words
+                );
+
+
+            percentage.textContent =
+                `${match.percentage}%`;
+
+            progress.style.width =
+                `${match.percentage}%`;
+
+
+            if (
+                match.percentage >= 80
+            ) {
+
+                recognition.stop();
+
+            }
+
+        };
+
+
+    recognition.onerror =
+        function(event) {
+
+            if (
+                event.error ===
+                "not-allowed"
+            ) {
+
+                status.textContent =
+                    "🎤 Mikrofon tidak dibenarkan. Sila benarkan akses mikrofon.";
+
+            }
+
+            else {
+
+                status.textContent =
+                    "Cuba bercakap sekali lagi.";
+
+            }
+
+        };
+
+
+    recognition.onend =
+        function() {
+
+            game.isRecording = false;
+
+
+            button.textContent =
+                "🎤 RAKAM SUARA";
+
+            button.classList.remove(
+                "recording"
+            );
+
+
+            const text =
+                display.textContent;
+
+
+            const result =
+                calculateWordMatch(
+                    text,
+                    question.words
+                );
+
+
+            if (
+                result.percentage >= 80
+            ) {
+
+                game.score += 5;
+
+                game.activitiesCompleted++;
+
+
+                if (
+                    game.currentQuestion <
+                    cp5Sentences.length - 1
+                ) {
+
+                    game.currentQuestion++;
+
+
+                    showFeedback(
+                        true,
+                        "Tahniah!",
+                        "Kamu berjaya menguasai ayat! 🏆",
+                        5,
+                        () => {
+
+                            openCP5();
+
+                        }
+                    );
+
+                }
+
+                else {
+
+                    completeCheckpoint(
+                        5,
+                        10
+                    );
+
+                }
+
+
+                updateHUD();
+
+            }
+
+            else if (
+                text &&
+                text !==
+                "Tekan mikrofon dan ulang ayat."
+            ) {
+
+                showFeedback(
+                    false,
+                    "Cuba lagi!",
+                    "Dengarkan ayat sekali lagi. Kamu boleh! 👂",
+                    0,
+                    () => {
+
+                        openCP5();
+
+                    }
+                );
+
+            }
+
+        };
+
+
+    try {
+
+        recognition.start();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Speech Recognition error:",
+            error
+        );
+
+        game.isRecording = false;
+
+    }
+
+}
+
+
+/* =========================================================
+   LIVE WORD BLOCKS
+========================================================= */
+
+function updateWordBlocks(
+    transcript,
+    targetWords
+) {
+
+    const normalised =
+        normaliseText(
+            transcript
+        );
+
+
+    document
+        .querySelectorAll(
+            ".word-block"
+        )
+        .forEach(block => {
+
+            const word =
+                normaliseText(
+                    block.dataset.word
+                );
+
+
+            if (
+                normalised.includes(word)
+            ) {
+
+                block.classList.add(
+                    "matched"
+                );
+
+            }
+
+            else {
+
+                block.classList.remove(
+                    "matched"
+                );
+
+            }
+
+        });
+
+}
+
+
+/* =========================================================
+   CALCULATE WORD MATCH
+========================================================= */
+
+function calculateWordMatch(
+    transcript,
+    targetWords
+) {
+
+    const normalised =
+        normaliseText(
+            transcript
+        );
+
+
+    let matched = 0;
+
+
+    targetWords.forEach(
+        word => {
+
+            const target =
+                normaliseText(
+                    word
+                );
+
+
+            if (
+                normalised.includes(
+                    target
+                )
+            ) {
+
+                matched++;
+
+            }
+
+        }
+    );
+
+
+    const percentage =
+        targetWords.length
+            ? Math.round(
+                (
+                    matched /
+                    targetWords.length
+                ) * 100
+            )
+            : 0;
+
+
+    return {
+        matched,
+        total: targetWords.length,
+        percentage
+    };
+
+}
+
+
+/* =========================================================
+   SPEECH RECOGNITION SETUP
+========================================================= */
+
+function setupSpeechRecognition() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    game.speechSupported =
+        !!SpeechRecognition;
+
+}
+
+
+/* =========================================================
+   START SPEECH RECOGNITION
+========================================================= */
+
+function startSpeechRecognition(
+    keywords,
+    button,
+    callback,
+    requireAll = false
+) {
+
+    if (!game.speechSupported) {
+
+        showSpeechUnsupported();
+
+        return;
+
+    }
+
+
+    if (game.isRecording) {
+
+        stopSpeechRecognition();
+
+        return;
+
+    }
+
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    const recognition =
+        new SpeechRecognition();
+
+
+    game.speechRecognition =
+        recognition;
+
+    game.isRecording = true;
+
+
+    recognition.lang =
+        "ms-MY";
+
+    recognition.continuous =
+        false;
+
+    recognition.interimResults =
+        true;
+
+    recognition.maxAlternatives =
+        1;
+
+
+    button.textContent =
+        "⏹ SELESAI RAKAMAN";
+
+    button.classList.add(
+        "recording"
+    );
+
+
+    const display =
+        document.getElementById(
+            "speechDisplay"
+        );
+
+    const status =
+        document.getElementById(
+            "speechStatus"
+        );
+
+
+    recognition.onstart =
+        function() {
+
+            status.textContent =
+                "🎤 Sedang mendengar...";
+
+        };
+
+
+    recognition.onresult =
+        function(event) {
+
+            let transcript = "";
+
+
+            for (
+                let i = event.resultIndex;
+                i < event.results.length;
+                i++
+            ) {
+
+                transcript +=
+                    event.results[i][0]
+                        .transcript;
+
+            }
+
+
+            transcript =
+                transcript.trim();
+
+
+            display.textContent =
+                transcript ||
+                "Mendengar...";
+
+        };
+
+
+    recognition.onerror =
+        function(event) {
+
+            game.isRecording = false;
+
+
+            button.textContent =
+                "🎤 RAKAM SUARA";
+
+            button.classList.remove(
+                "recording"
+            );
+
+
+            if (
+                event.error ===
+                "not-allowed"
+            ) {
+
+                status.textContent =
+                    "Mikrofon tidak dibenarkan.";
+
+            }
+
+            else if (
+                event.error ===
+                "no-speech"
+            ) {
+
+                status.textContent =
+                    "Tiada suara dikesan.";
+
+            }
+
+            else {
+
+                status.textContent =
+                    "Cuba lagi.";
+
+            }
+
+        };
+
+
+    recognition.onend =
+        function() {
+
+            game.isRecording = false;
+
+
+            button.textContent =
+                "🎤 RAKAM SUARA";
+
+            button.classList.remove(
+                "recording"
+            );
+
+
+            const transcript =
+                display.textContent;
+
+
+            if (
+                !transcript ||
+                transcript ===
+                "Tekan mikrofon dan jawab."
+            ) {
+
+                status.textContent =
+                    "Tiada jawapan dikesan.";
+
+                return;
+
+            }
+
+
+            callback(
+                transcript,
+                keywords,
+                requireAll
+            );
+
+        };
+
+
+    try {
+
+        recognition.start();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Speech Recognition error:",
+            error
+        );
+
+        game.isRecording = false;
+
+        button.textContent =
+            "🎤 RAKAM SUARA";
+
+        button.classList.remove(
+            "recording"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   STOP SPEECH RECOGNITION
+========================================================= */
+
+function stopSpeechRecognition() {
+
+    if (
+        game.speechRecognition
+    ) {
+
+        try {
+
+            game.speechRecognition.stop();
+
+        }
+
+        catch (error) {
+
+            console.log(
+                "Speech recognition stopped."
+            );
+
+        }
+
+    }
+
+
+    game.isRecording =
+        false;
+
+}
+
+
+/* =========================================================
+   TEXT TO SPEECH
+========================================================= */
+
+function speakText(text) {
+
+    if (
+        !game.speechSynthesisSupported
+    ) {
+
+        return;
+
+    }
+
+
+    window.speechSynthesis.cancel();
+
+
+    const utterance =
+        new SpeechSynthesisUtterance(
+            text
+        );
+
+
+    utterance.lang =
+        "ms-MY";
+
+    utterance.rate =
+        0.85;
+
+    utterance.pitch =
+        1;
+
+    utterance.volume =
+        1;
+
+
+    const voices =
+        window.speechSynthesis
+            .getVoices();
+
+
+    const malayVoice =
+        voices.find(
+            voice =>
+                voice.lang
+                    .toLowerCase()
+                    .startsWith("ms")
+        );
+
+
+    if (malayVoice) {
+
+        utterance.voice =
+            malayVoice;
+
+    }
+
+
+    window.speechSynthesis.speak(
+        utterance
+    );
+
+}
+
+
+/* =========================================================
+   NORMALISE TEXT
+========================================================= */
+
+function normaliseText(text) {
+
+    return String(text || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        )
+        .replace(
+            /[^a-z0-9\s]/g,
+            " "
+        )
+        .replace(
+            /\s+/g,
+            " "
+        )
+        .trim();
+
+}
+
+
+/* =========================================================
+   KEYWORD MATCHING
+========================================================= */
+
+function keywordMatch(
+    transcript,
+    keywords
+) {
+
+    const text =
+        normaliseText(
+            transcript
+        );
+
+
+    return keywords.some(
+        keyword =>
+            text.includes(
+                normaliseText(
+                    keyword
+                )
+            )
+    );
+
+}
+
+
+/* =========================================================
+   ALL KEYWORD MATCHING
+========================================================= */
+
+function keywordMatchAll(
+    transcript,
+    keywords
+) {
+
+    const text =
+        normaliseText(
+            transcript
+        );
+
+
+    return keywords.every(
+        keyword =>
+            text.includes(
+                normaliseText(
+                    keyword
+                )
+            )
+    );
+
+}
+
+
+/* =========================================================
+   SPEECH UNSUPPORTED
+========================================================= */
+
+function showSpeechUnsupported() {
+
+    showFeedback(
+        false,
+        "Fungsi suara tidak tersedia",
+        "Speech Recognition tidak disokong oleh browser ini. Sila gunakan Google Chrome.",
+        0,
+        function() {}
+    );
+
+}
+
+
+/* =========================================================
+   COMPLETE CHECKPOINT
+========================================================= */
+
+function completeCheckpoint(
+    checkpoint,
+    bonus
+) {
+
+    game.score += bonus;
+
+
+    if (
+        !game.completedCheckpoints
+            .includes(checkpoint)
+    ) {
+
+        game.completedCheckpoints
+            .push(checkpoint);
+
+    }
+
+
+    updateHUD();
+
+    updateCheckpointVisuals();
+
+
+    showFeedback(
+        true,
+        "🎉 SYABAS!",
+        `Checkpoint ${checkpoint} berjaya!<br><br>
+         ⭐ +${bonus} Markah<br><br>
+         Checkpoint seterusnya telah dibuka!`,
+        bonus,
+        function() {
+
+            closeActivityModal();
+
+            resetPlayerPosition();
+
+
+            if (
+                checkpoint === 5
+            ) {
+
+                finishGame();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FEEDBACK
+========================================================= */
+
+let feedbackCallback = null;
+
+
+function showFeedback(
+    correct,
+    title,
+    message,
+    points,
+    callback
+) {
+
+    if (!feedbackModal) return;
+
+
+    feedbackTitle.textContent =
+        title;
+
+
+    feedbackMessage.innerHTML =
+        message;
+
+
+    feedbackScore.textContent =
+        points > 0
+            ? `+${points} ⭐`
+            : "Cuba semula 💪";
+
+
+    if (correct) {
+
+        feedbackIcon.textContent =
+            "🎉";
+
+        feedbackTitle.style.color =
+            "#2e7d32";
+
+    }
+
+    else {
+
+        feedbackIcon.textContent =
+            "💪";
+
+        feedbackTitle.style.color =
+            "#ef6c00";
+
+    }
+
+
+    feedbackCallback =
+        callback || null;
+
+
+    feedbackModal.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+function closeFeedback() {
+
+    if (!feedbackModal) return;
+
+
+    feedbackModal.classList.add(
+        "hidden"
+    );
+
+
+    const callback =
+        feedbackCallback;
+
+
+    feedbackCallback =
+        null;
+
+
+    if (callback) {
+
+        callback();
+
+    }
+
+}
+
+
+/* =========================================================
+   FINISH GAME
+========================================================= */
+
+function finishGame() {
+
+    stopSpeechRecognition();
+
+    closeActivityModal();
+
+
+    finalName.textContent =
+        game.studentName;
+
+    finalScore.textContent =
+        game.score;
+
+    finalCheckpoint.textContent =
+        `${game.completedCheckpoints.length} / 5`;
+
+    finalActivities.textContent =
+        `${game.activitiesCompleted} / ${game.totalActivities}`;
+
+
+    const percentage =
+        game.totalActivities
+            ? Math.round(
+                (
+                    game.activitiesCompleted /
+                    game.totalActivities
+                ) * 100
+            )
+            : 0;
+
+
+    finalPercentage.textContent =
+        `${percentage}%`;
+
+
+    showScreen(
+        finishScreen
+    );
+
+}
+
+
+/* =========================================================
+   CLOSE ACTIVITY WHEN CLICKING OUTSIDE
+========================================================= */
+
+if (activityModal) {
+
+    activityModal.addEventListener(
+        "click",
+        function(event) {
+
+            if (
+                event.target ===
+                activityModal
+            ) {
+
+                return;
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            stopSpeechRecognition();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   SPEECH VOICES
+========================================================= */
+
+if (
+    "speechSynthesis" in window
+) {
+
+    window.speechSynthesis
+        .addEventListener(
+            "voiceschanged",
+            function() {
+
+                window.speechSynthesis
+                    .getVoices();
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   START APPLICATION
+========================================================= */
+
+if (
+    document.readyState === "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initialiseGame
+    );
+
+}
+
+else {
+
+    initialiseGame();
+
+}
