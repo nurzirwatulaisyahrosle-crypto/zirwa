@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kembara PeTara</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ================================
+         SKRIN MULA
+    ================================= -->
+
+    <section id="startScreen" class="screen active">
+
+        <div class="start-card">
+
+            <div class="logo-icon">🧭</div>
+
+            <h1>Kembara PeTara</h1>
+
+            <p class="tagline">
+                Dengar. Faham. Bicara. Jelajah.
+            </p>
+
+            <div class="name-area">
+
+                <label for="studentName">
+                    Nama Murid
+                </label>
+
+                <input
+                    type="text"
+                    id="studentName"
+                    placeholder="Masukkan nama kamu"
+                    maxlength="20"
+                    autocomplete="off"
+                >
+
+            </div>
+
+            <button
+                id="startButton"
+                class="main-button"
+            >
+                🎮 MULA BERMAIN
+            </button>
+
+            <p id="startError" class="error-message"></p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================
+         DUNIA UTAMA
+    ================================= -->
+
+    <section id="worldScreen" class="screen">
+
+        <!-- HUD -->
+        <header class="game-hud">
+
+            <div class="hud-item">
+                👤
+                <span id="hudName">Murid</span>
+            </div>
+
+            <div class="hud-item">
+                ⭐
+                <span id="scoreDisplay">0</span>
+            </div>
+
+            <div class="hud-item">
+                🏁
+                <span id="checkpointDisplay">0/5</span>
+            </div>
+
+        </header>
+
+
+        <!-- Dunia permainan -->
+
+        <main class="game-world">
+
+            <!-- Langit -->
+            <div class="sky">
+
+                <div class="cloud cloud-1"></div>
+                <div class="cloud cloud-2"></div>
+                <div class="cloud cloud-3"></div>
+
+                <div class="sun">☀️</div>
+
+            </div>
+
+
+            <!-- Gunung latar -->
+            <div class="mountains">
+                <div class="mountain mountain-1"></div>
+                <div class="mountain mountain-2"></div>
+                <div class="mountain mountain-3"></div>
+            </div>
+
+
+            <!-- Dunia blok -->
+            <div id="worldMap" class="world-map">
+
+                <!-- Jalan -->
+                <div class="path path-1"></div>
+                <div class="path path-2"></div>
+                <div class="path path-3"></div>
+                <div class="path path-4"></div>
+
+
+                <!-- Sungai -->
+                <div class="river">
+                    <div class="wave wave-1"></div>
+                    <div class="wave wave-2"></div>
+                    <div class="wave wave-3"></div>
+                </div>
+
+
+                <!-- Pokok -->
+                <div class="tree tree-1">🌳</div>
+                <div class="tree tree-2">🌲</div>
+                <div class="tree tree-3">🌳</div>
+                <div class="tree tree-4">🌲</div>
+                <div class="tree tree-5">🌳</div>
+                <div class="tree tree-6">🌲</div>
+
+
+                <!-- Batu -->
+                <div class="rock rock-1">🪨</div>
+                <div class="rock rock-2">🪨</div>
+
+
+                <!-- Avatar -->
+                <div
+                    id="player"
+                    class="player"
+                    aria-label="Avatar murid"
+                >
+                    🧑‍🎓
+                </div>
+
+
+                <!-- =========================
+                     CHECKPOINT 1
+                ========================== -->
+
+                <button
+                    class="checkpoint unlocked"
+                    id="checkpoint1"
+                    data-checkpoint="1"
+                    style="left: 10%; top: 62%;"
+                >
+
+                    <span class="checkpoint-icon">🌳</span>
+
+                    <span class="checkpoint-number">
+                        CP1
+                    </span>
+
+                    <span class="checkpoint-name">
+                        Hutan Misteri
+                    </span>
+
+                </button>
+
+
+                <!-- =========================
+                     CHECKPOINT 2
+                ========================== -->
+
+                <button
+                    class="checkpoint locked"
+                    id="checkpoint2"
+                    data-checkpoint="2"
+                    style="left: 30%; top: 47%;"
+                    disabled
+                >
+
+                    <span class="checkpoint-icon">🍳</span>
+
+                    <span class="checkpoint-number">
+                        CP2
+                    </span>
+
+                    <span class="checkpoint-name">
+                        Dapur Ajaib
+                    </span>
+
+                </button>
+
+
+                <!-- =========================
+                     CHECKPOINT 3
+                ========================== -->
+
+                <button
+                    class="checkpoint locked"
+                    id="checkpoint3"
+                    data-checkpoint="3"
+                    style="left: 48%; top: 65%;"
+                    disabled
+                >
+
+                    <span class="checkpoint-icon">🌳</span>
+
+                    <span class="checkpoint-number">
+                        CP3
+                    </span>
+
+                    <span class="checkpoint-name">
+                        Taman Bicara
+                    </span>
+
+                </button>
+
+
+                <!-- =========================
+                     CHECKPOINT 4
+                ========================== -->
+
+                <button
+                    class="checkpoint locked"
+                    id="checkpoint4"
+                    data-checkpoint="4"
+                    style="left: 68%; top: 43%;"
+                    disabled
+                >
+
+                    <span class="checkpoint-icon">🛒</span>
+
+                    <span class="checkpoint-number">
+                        CP4
+                    </span>
+
+                    <span class="checkpoint-name">
+                        Kedai Runcit Pak Ali
+                    </span>
+
+                </button>
+
+
+                <!-- =========================
+                     CHECKPOINT 5
+                ========================== -->
+
+                <button
+                    class="checkpoint locked"
+                    id="checkpoint5"
+                    data-checkpoint="5"
+                    style="left: 86%; top: 60%;"
+                    disabled
+                >
+
+                    <span class="checkpoint-icon">⛰️</span>
+
+                    <span class="checkpoint-number">
+                        CP5
+                    </span>
+
+                    <span class="checkpoint-name">
+                        Gunung Ayat
+                    </span>
+
+                </button>
+
+            </div>
+
+        </main>
+
+
+        <!-- Arahan kawalan -->
+
+        <div class="controls-hint">
+
+            <span>⌨️ WASD / Arrow Keys</span>
+
+            <span>🚶 Gerakkan watak ke checkpoint</span>
+
+        </div>
+
+
+        <!-- Mobile controls -->
+
+        <div id="mobileControls" class="mobile-controls">
+
+            <button data-key="ArrowUp">▲</button>
+
+            <div>
+                <button data-key="ArrowLeft">◀</button>
+                <button data-key="ArrowDown">▼</button>
+                <button data-key="ArrowRight">▶</button>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================
+         MODAL AKTIVITI
+    ================================= -->
+
+    <div
+        id="activityModal"
+        class="modal hidden"
+    >
+
+        <div class="activity-card">
+
+            <button
+                id="closeActivity"
+                class="close-button"
+                aria-label="Tutup"
+            >
+                ✕
+            </button>
+
+            <div id="activityContent"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================
+         MODAL MAKLUM BALAS
+    ================================= -->
+
+    <div
+        id="feedbackModal"
+        class="modal hidden"
+    >
+
+        <div
+            id="feedbackCard"
+            class="feedback-card"
+        >
+
+            <div id="feedbackIcon">
+                ⭐
+            </div>
+
+            <h2 id="feedbackTitle">
+                Syabas!
+            </h2>
+
+            <p id="feedbackMessage">
+                Jawapan kamu betul!
+            </p>
+
+            <div id="feedbackScore">
+                +10 ⭐
+            </div>
+
+            <button
+                id="feedbackButton"
+                class="main-button"
+            >
+                TERUSKAN
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================
+         SKRIN TAMAT
+    ================================= -->
+
+    <section
+        id="finishScreen"
+        class="screen"
+    >
+
+        <div class="finish-card">
+
+            <div class="trophy">
+                🏆
+            </div>
+
+            <h1>
+                KEMBARA PETARA SELESAI!
+            </h1>
+
+            <p class="finish-subtitle">
+                Dengar. Faham. Bicara. Jelajah.
+            </p>
+
+
+            <div class="result-box">
+
+                <div class="result-row">
+                    <span>Nama</span>
+                    <strong id="finalName">
+                        -
+                    </strong>
+                </div>
+
+                <div class="result-row">
+                    <span>⭐ Jumlah Markah</span>
+                    <strong id="finalScore">
+                        0
+                    </strong>
+                </div>
+
+                <div class="result-row">
+                    <span>🏁 Checkpoint</span>
+                    <strong id="finalCheckpoint">
+                        0 / 5
+                    </strong>
+                </div>
+
+                <div class="result-row">
+                    <span>🎯 Aktiviti Berjaya</span>
+                    <strong id="finalActivities">
+                        0 / 10
+                    </strong>
+                </div>
+
+                <div class="result-row">
+                    <span>📊 Pencapaian</span>
+                    <strong id="finalPercentage">
+                        0%
+                    </strong>
+                </div>
+
+            </div>
+
+
+            <div class="badge">
+
+                <div class="badge-icon">
+                    🏆
+                </div>
+
+                <div>
+                    <strong>WIRA BAHASA</strong>
+
+                    <small>
+                        Kembara PeTara
+                    </small>
+                </div>
+
+            </div>
+
+
+            <button
+                id="restartButton"
+                class="main-button"
+            >
+                🔄 MAIN SEMULA
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================
+         JAVASCRIPT
+    ================================= -->
+
+    <script src="script.js"></script>
+
+</body>
+</html>
